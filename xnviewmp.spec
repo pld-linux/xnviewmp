@@ -1,15 +1,14 @@
-# TODO
-# - system exiftool
+# NOTE:
+# - requires libjpeg6 (in pld build libjpeg6.spec)
 #
 # Conditional build:
 %bcond_without	system_qt		# package with system Qt4
-#
-# NOTE:
-# - requires libjpeg6 (in pld build libjpeg6.spec)
+%bcond_without	system_exiftool	# package with system exiftool
+
 Summary:	XnViewMP - The enhanced version of XnView for all platforms
 Name:		xnviewmp
 Version:	0.72
-Release:	0.4
+Release:	0.5
 License:	FREEWARE (NO Adware, NO Spyware) for private or educational use
 Group:		X11/Applications
 Source0:	http://download.xnview.com/XnViewMP-linux.tgz
@@ -53,8 +52,16 @@ tar xf $SOURCE -C tmp
 mv tmp/XnView/* .
 %patch0 -p1
 
+# .pod sources
+%{__rm} AddOn/lib/File/RandomAccess.pod
+%{__rm} AddOn/lib/Image/ExifTool.pod
+
 %if %{with system_qt}
 %{__rm} language/qt_*.qm
+%endif
+%if %{with system_exiftool}
+%{__rm} AddOn/exiftool
+%{__rm} -r AddOn/lib
 %endif
 
 %install
@@ -79,11 +86,6 @@ cp -p xnview.png $RPM_BUILD_ROOT%{_pixmapsdir}
 %find_lang xnview --with-qm
 
 cat *.lang > lang.%{name}
-
-# cleanups
-# .pod sources
-%{__rm} $RPM_BUILD_ROOT%{_appdir}/AddOn/lib/File/RandomAccess.pod
-%{__rm} $RPM_BUILD_ROOT%{_appdir}/AddOn/lib/Image/ExifTool.pod
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -115,15 +117,15 @@ rm -rf $RPM_BUILD_ROOT
 %{_appdir}/AddOn/Masks
 %{_appdir}/AddOn/Thumbs
 
-# exiftool
+%if %{without system_exiftool}
 %attr(755,root,root) %{_appdir}/AddOn/exiftool
 %dir %{_appdir}/AddOn/lib
 %dir %{_appdir}/AddOn/lib/Image
 %{_appdir}/AddOn/lib/Image/ExifTool.pm
 %{_appdir}/AddOn/lib/Image/ExifTool
-
 %dir %{_appdir}/AddOn/lib/File
 %{_appdir}/AddOn/lib/File/RandomAccess.pm
+%endif
 
 %dir %{_appdir}/Plugins
 %attr(755,root,root) %{_appdir}/Plugins/IlmImf.so
