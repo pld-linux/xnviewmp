@@ -1,12 +1,15 @@
 # TODO
 # - system exiftool
-# - system Qt4
+#
+# Conditional build:
+%bcond_without	system_qt		# package with system Qt4
+#
 # NOTE:
 # - requires libjpeg6 (in pld build libjpeg6.spec)
 Summary:	XnViewMP - The enhanced version of XnView for all platforms
 Name:		xnviewmp
 Version:	0.72
-Release:	0.1
+Release:	0.4
 License:	FREEWARE (NO Adware, NO Spyware) for private or educational use
 Group:		X11/Applications
 Source0:	http://download.xnview.com/XnViewMP-linux.tgz
@@ -22,6 +25,15 @@ ExclusiveArch:	%{ix86} %{x8664}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_appdir		%{_libdir}/%{name}
+
+# generate no Provides from private modules
+%define		_noautoprovfiles	%{_appdir}
+
+%if %{without system_qt}
+%define		qt_libs	libQt.*\.so\.4 libphonon\.so\.4
+%endif
+
+%define		_noautoreq		%{?qt_libs}
 
 %description
 XnViewMP is the enhanced version to XnView. It is a powerful
@@ -41,19 +53,29 @@ tar xf $SOURCE -C tmp
 mv tmp/XnView/* .
 %patch0 -p1
 
+%if %{with system_qt}
+%{__rm} language/qt_*.qm
+%endif
+
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{%{_bindir},%{_appdir},%{_pixmapsdir},%{_desktopdir}}
 
-cp -a AddOn Plugins UI language lib $RPM_BUILD_ROOT%{_appdir}
-cp -p PrintPresets.txt country.txt qt.conf $RPM_BUILD_ROOT%{_appdir}
+cp -a AddOn Plugins UI language $RPM_BUILD_ROOT%{_appdir}
+cp -p PrintPresets.txt country.txt $RPM_BUILD_ROOT%{_appdir}
+
+%if %{without system_qt}
+cp -a lib $RPM_BUILD_ROOT%{_appdir}
+cp -p qt.conf $RPM_BUILD_ROOT%{_appdir}
+%find_lang qt --with-qm
+%endif
+
 install -p XnView xnview.sh $RPM_BUILD_ROOT%{_appdir}
 ln -s %{_appdir}/xnview.sh $RPM_BUILD_ROOT%{_bindir}/xnview
 
 cp -p XnView.desktop $RPM_BUILD_ROOT%{_desktopdir}
 cp -p xnview.png $RPM_BUILD_ROOT%{_pixmapsdir}
 
-%find_lang qt --with-qm
 %find_lang xnview --with-qm
 
 cat *.lang > lang.%{name}
@@ -100,7 +122,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_appdir}/AddOn/lib/Image/ExifTool.pm
 %{_appdir}/AddOn/lib/Image/ExifTool
 
-
 %dir %{_appdir}/AddOn/lib/File
 %{_appdir}/AddOn/lib/File/RandomAccess.pm
 
@@ -120,7 +141,7 @@ rm -rf $RPM_BUILD_ROOT
 %lang(pl) %{_appdir}/language/exif_pl.lng
 %lang(ru) %{_appdir}/language/exif_ru.lng
 
-# Qt4
+%if %{without system_qt}
 %{_appdir}/qt.conf
 %dir %{_appdir}/lib
 %dir %{_appdir}/lib/codecs
@@ -131,3 +152,4 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_appdir}/lib/libQt*.so.4*
 %attr(755,root,root) %{_appdir}/lib/libphonon.so.4
 %attr(755,root,root) %{_appdir}/lib/phonon_backend/libphonon_gstreamer.so
+%endif
