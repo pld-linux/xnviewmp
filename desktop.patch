@@ -1,0 +1,13 @@
+--- xnviewmp-0.72/XnView.desktop~	2012-06-07 23:09:29.000000000 +0300
++++ xnviewmp-0.72/XnView.desktop	2015-05-17 19:44:28.078698075 +0300
+@@ -1,8 +1,8 @@
+ [Desktop Entry]
+ Encoding=UTF-8
+ Terminal=0
+-Exec=/home/pierre/Desktop/XnView/xnview.sh
+-Icon=/home/pierre/Desktop/XnView/xnview.png
++Exec=xnview
++Icon=xnview.png
+ Type=Application
+ Categories=Graphics;
+ StartupNotify=true
