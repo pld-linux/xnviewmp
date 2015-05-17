@@ -7,7 +7,7 @@
 -Exec=/home/pierre/Desktop/XnView/xnview.sh
 -Icon=/home/pierre/Desktop/XnView/xnview.png
 +Exec=xnview
-+Icon=xnview.png
++Icon=xnview
  Type=Application
  Categories=Graphics;
  StartupNotify=true
